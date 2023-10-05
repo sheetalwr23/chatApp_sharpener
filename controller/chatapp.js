@@ -8,7 +8,7 @@ const createMsg = async (req, res) => {
     const chatMsg = await Chatapp.create({ msg: msg, userId: req.user.id });
     return res.status(200).json({ chatMsg: chatMsg });
   } catch {
-    return res.status(500).json({ message: "cant send into db" });
+    return res.status(500).json({ message: "cant send msg into db" });
   }
 };
 

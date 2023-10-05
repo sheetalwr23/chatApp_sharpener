@@ -106,7 +106,7 @@
 
     #contact-list {
         border: 2px solid grey;
-        height: 400px;
+        height: 200px;
         margin: 4px;
     }
 
@@ -121,9 +121,42 @@
         float: left;
         margin-top: 4px;
     }
+
+    .btn_create_group {
+        margin: 4px;
+        padding: 4px;
+    }
+
+    .navbar {
+        height: 70px;
+        /* border: 2px solid black; */
+        background-color: rgb(148, 218, 178);
+        box-shadow: 3px 3px 3px 3px green;
+    }
+
+    #nav-heading {
+        color: green;
+        font-style: italic;
+        font-size: 40px;
+        font-weight: 800;
+        margin-left: px;
+    }
+
+    .groupName {
+        color: maroon;
+        font-style: italic;
+        list-style: disc;
+    }
 </style>
 
 <body>
+    <div class="nav navbar">
+        <ul id="nav-heading">
+            <li>
+                <h3>ChatApp</h3>
+            </li>
+        </ul>
+    </div>
     <div class="container">
         <div class="row">
             <div class="col-md-3">
@@ -131,6 +164,27 @@
                     <header>Contact list</header>
                     <ul class="list-group" id="contact">
                     </ul>
+                </div>
+                <div class="container mt-5">
+                    <h5>Create a New Group</h5>
+                    <form id="createGroupForm">
+                        <div class="form-group">
+                            <label for="groupName">Group Name:</label>
+                            <input type="text" class="form-control" id="groupName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Members:</label>
+                            <div class="user-list" id="userList">
+                                <!-- User checkboxes will be added here dynamically -->
+                                <!-- <label class="member_label"></label> -->
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="createGroup(event)">Create
+                            Group</button>
+                    </form>
+                </div>
+                <div id="display_group">
+                    <ul id="group">Your Groups:</ul>
                 </div>
             </div>
             <div class="col-md-6 chat-area">
@@ -152,7 +206,8 @@
             </div>
 
             <div class="col-md-2">
-                <a href="./index.html"><button class="btn btn-success" id="logOut" onclick="logout(event)">LogOut</button></a>
+                <a href="./index.html"><button class="btn btn-success" id="logOut"
+                        onclick="logout(event)">LogOut</button></a>
             </div>
         </div>
     </div>
@@ -162,21 +217,21 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="text/javascript">
 
-async function sendMsg(event) {
-    event.preventDefault();
-      
-    const msg = document.getElementById("message-txt").value;
-    const obj = { msg: msg };
-    try {
-        const token = localStorage.getItem('token');
-        const postMsg = await axios.post("http://localhost:2000/chat", obj, { headers: { "Authorization": token } });
-        console.log("posted msg", postMsg.data.chatMsg);
-        fetchMsgFromGetAPi();
+    async function sendMsg(event) {
+        event.preventDefault();
+
+        const msg = document.getElementById("message-txt").value;
+        const obj = { msg: msg };
+        try {
+            const token = localStorage.getItem('token');
+            const postMsg = await axios.post("http://localhost:2000/chat", obj, { headers: { "Authorization": token } });
+            console.log("posted msg", postMsg.data.chatMsg);
+            fetchMsgFromGetAPi();
+        }
+        catch (err) {
+            console.log("cant post", err)
+        }
     }
-    catch (err) {
-        console.log("cant post", err)
-    }
-}
 
 
     //function to parse jwt token
@@ -221,11 +276,15 @@ async function sendMsg(event) {
         fetchMsgFromGetAPi();
 
         //get msgs from local storage
-        getMsgFromLocalStorage()
+        getMsgFromLocalStorage();
+
+        //get groups 
+        getGroupDetails()
+
 
     })
 
-//set msg to local storage
+    //set msg to local storage
     async function fetchMsgFromGetAPi() {
         try {
             const token = localStorage.getItem('token');
@@ -253,12 +312,12 @@ async function sendMsg(event) {
     }
 
 
-/**
- * Display the last five chat messages in an HTML container.
- *
- * @param {Array} arrMsg - An array of chat message objects to display.
- * @async
- */
+    /**
+     * Display the last five chat messages in an HTML container.
+     *
+     * @param {Array} arrMsg - An array of chat message objects to display.
+     * @async
+     */
     //display sent msg
     async function displaySentMsg(arrMsg) {
         document.getElementById("sendChatMsg").innerHTML = "";
@@ -270,34 +329,130 @@ async function sendMsg(event) {
             parent.appendChild(child);
         })
     }
-    async function logout(event){
+
+
+
+    async function getGroupMembers() {
+        try {
+            const getData = await axios.get("http://localhost:2000/user");
+            console.log("all users", getData.data.all_users);
+            const array = getData.data.all_users;
+            console.log("array of object of users", array);
+
+            const userListDiv = document.getElementById("userList");
+            array.forEach((ele, index) => {
+                // Create a checkbox input element
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = ele.id; // Assign the user's name as the value
+                checkbox.className = "array-checkbox";
+
+                // Create a label element for the checkbox
+                const label = document.createElement("label");
+                label.appendChild(checkbox); // Add the checkbox to the label
+                label.appendChild(document.createTextNode(ele.name)); // Add user name text
+
+                // Append the label (with the checkbox) to the userListDiv
+                userListDiv.appendChild(label);
+                userListDiv.appendChild(document.createElement("br")); // Add a line break
+
+
+            });
+
+        } catch (err) {
+            console.log("can not fetch users");
+        }
+    }
+
+    getGroupMembers();
+    function selectMembers() {
+        const selectedUsers = [];
+        // getGroupMembers();
+        const checkboxes = document.getElementsByClassName("array-checkbox");
+
+        const checkboxesArray = Array.from(checkboxes);
+        checkboxesArray.forEach((checkbox) => {
+            if (checkbox.checked) {
+                selectedUsers.push(checkbox.value);
+            }
+        });
+        return selectedUsers;
+    }
+
+    async function createGroup(event) {
+        event.preventDefault();
+        const groupName = document.getElementById("groupName").value;
+        // Call selectMembers to collect the selected users
+        selectMembers();
+
+        console.log("Group Name:", groupName);
+        console.log("Selected Users:", selectMembers());
+
+        // Create an object that includes the selectedUsers and groupName
+        const groupData = {
+            groupName: groupName,
+            members: selectMembers()
+        };
+
+        console.log("Group Data:", groupData);
+        const token = localStorage.getItem('token');
+
+        try {
+            const postGroup = await axios.post("http://localhost:2000/createGroup", groupData, {
+                headers: { "Authorization": token }
+            });
+            console.log("Data posted: postGroup", postGroup);
+
+            // Clear selectedUsers after successful post if needed
+            selectMembers().length = 0;
+        } catch (error) {
+            console.error("Error posting data:", error);
+        }
+    }
+
+
+    async function getGroupDetails() {
+        try {
+            const token = localStorage.getItem('token');
+            const getGroupDetails = await axios.get("http://localhost:2000/getGroup", { headers: { "Authorization": token } });
+            console.log("groupDetails are", getGroupDetails.data.allGroupData);
+            const array = getGroupDetails.data.allGroupData;
+            displayGroup(array);
+        }
+        catch (error) {
+            console.log("can not get group details", error);
+        }
+    }
+    function displayGroup(arrayOfObj) {
+        const parent = document.getElementById("group");
+        arrayOfObj.forEach((obj) => {
+            console.log("obj", obj.groupname);
+            const child = document.createElement("li");
+            child.textContent = `groupName:${obj.groupname},Admin:${obj.createdBy}`;
+            child.className = "groupName";
+            parent.appendChild(child);
+
+        })
+    }
+
+    async function logout(event) {
         event.preventDefault()
-        try{
-          const token=localStorage.getItem("token");
-          const decodeToken=parseJwt(token)
-          const userId=decodeToken.userId
-        const response=await axios.put(`http://localhost:2000/updateStatus/${userId}`)
-        if(response.status===200){
-                    window.location.href='/index.html'
-                }
-                else{
-                    console.log('getting error')
-                }
+        try {
+            const token = localStorage.getItem("token");
+            const decodeToken = parseJwt(token)
+            const userId = decodeToken.userId
+            const response = await axios.put(`http://localhost:2000/updateStatus/${userId}`)
+            if (response.status === 200) {
+                window.location.href = '/index.html'
+            }
+            else {
+                console.log('getting error')
+            }
         }
-        catch(err){
-          console.log(err)
+        catch (err) {
+            console.log(err)
         }
-      }
-
-      logout()
-
-
-
-
-
-
-
-
+    }
 
 
 
