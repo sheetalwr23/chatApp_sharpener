@@ -6,7 +6,7 @@ const sequelize_db = require("./util/chatapp");
 const user = require("./models/user");
 const bodyParser = require("body-parser");
 const router = require("./routes/user");
-// const chat = require("./models/chatapp");
+const chat = require("./models/chatapp");
 const chatRoute = require("./routes/chatapp");
 
 const cors = require("cors");
@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/", router);
-// app.use("/", chatRoute);
+app.use("/", chatRoute);
 user.hasMany(chat);
 chat.belongsTo(user);
 

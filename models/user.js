@@ -25,10 +25,6 @@ const user = sequelize_db.define("user", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  status: {
-    type: Sequelize.STRING,
-    defaultValue: "offline",
-  },
 });
 
 module.exports = user;
