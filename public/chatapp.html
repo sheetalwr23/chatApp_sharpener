@@ -116,15 +116,15 @@
         margin: 2px;
         font-weight: bold;
     }
-    #logOut
-    {
-        float: right;
+
+    #logOut {
+        float: left;
+        margin-top: 4px;
     }
 </style>
 
 <body>
     <div class="container">
-<div id="logOut"><a href="./index.html"><button class="btn btn-success">LogOut</button></a></div>
         <div class="row">
             <div class="col-md-3">
                 <div id="contact-list">
@@ -151,7 +151,9 @@
                 </div>
             </div>
 
-            <div class="col-md-3"></div>
+            <div class="col-md-2">
+                <a href="./index.html"><button class="btn btn-success" id="logOut" onclick="logout(event)">LogOut</button></a>
+            </div>
         </div>
     </div>
     </div>
@@ -160,34 +162,32 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="text/javascript">
 
-
-    async function sendMsg(event) {
-        event.preventDefault();
-        const msg = document.getElementById("message-txt").value;
-        const obj = { msg:msg };
-        console.log(obj);
-        try {
-            const token = localStorage.getItem('token');
-            const postMsg = await axios.post("http://localhost:2000/chat", obj, { headers: { "Authorization": token } });
-            console.log("posted msg", postMsg.data.chatMsg.msg);
-            displaySentMsg(obj);
-        }
-        catch (err) {
-            console.log("cant post", err)
-        }
+async function sendMsg(event) {
+    event.preventDefault();
+      
+    const msg = document.getElementById("message-txt").value;
+    const obj = { msg: msg };
+    try {
+        const token = localStorage.getItem('token');
+        const postMsg = await axios.post("http://localhost:2000/chat", obj, { headers: { "Authorization": token } });
+        console.log("posted msg", postMsg.data.chatMsg);
+        fetchMsgFromGetAPi();
     }
+    catch (err) {
+        console.log("cant post", err)
+    }
+}
 
-    //parse jwt token
+
+    //function to parse jwt token
     function parseJwt(token) {
-
         const base64Url = token.split('.')[1]; // Get the base64-encoded payload
         const base64 = base64Url.replace('-', '+').replace('_', '/'); // Replace URL-safe characters
         const payload = JSON.parse(atob(base64)); // Decode and parse the payload
         return payload;
     }
 
-
-    window.addEventListener("DOMContentLoaded", async () => {
+    async function getUserFromApi() {
         //get contacts other than logged in user
         try {
             const getData = await axios.get("http://localhost:2000/user");
@@ -195,7 +195,7 @@
             const array = getData.data.all_users;
             const parent = document.getElementById("contact");
             const localTokenget = localStorage.getItem("token", getData.data.token);
-            console.log("localget", localTokenget);
+            console.log("localTokenget", localTokenget);
             const decodedToken = parseJwt(localTokenget)
             console.log("decoded token", decodedToken);
 
@@ -212,31 +212,95 @@
         catch (error) {
             console.log("can not get all uasers", error)
         }
-        //show messages in the chatbox
+    }
+    window.addEventListener("DOMContentLoaded", async () => {
+        //get users
+        getUserFromApi();
+
+        //get msgs from db and set to local storage
+        fetchMsgFromGetAPi();
+
+        //get msgs from local storage
+        getMsgFromLocalStorage()
+
+    })
+
+//set msg to local storage
+    async function fetchMsgFromGetAPi() {
         try {
             const token = localStorage.getItem('token');
-            const getMsg = await axios.get("http://localhost:2000/chat",{ headers: { "Authorization": token }});
+            const getMsg = await axios.get("http://localhost:2000/chat", { headers: { "Authorization": token } });
             console.log("all messages", getMsg.data.chatMsg);
-            const arrMsg=getMsg.data.chatMsg;
-            arrMsg.forEach((ele)=>
-            {
-                displaySentMsg(ele);
-            })
+            //convert arrofobject to string to set into local storage
+            const arrOfObj = getMsg.data.chatMsg;
+            const string = JSON.stringify(arrOfObj);
+            // console.log("string",string);
+            localStorage.setItem("msgs", string);
+            getMsgFromLocalStorage();
         }
-        catch(error)
-        {
-            console.log("cant show msg sent by user",error);
+        catch (error) {
+            console.log("cant show msg sent by user", error);
         }
-    })
-   async function displaySentMsg(obj) {
-        const parent = document.getElementById("sendChatMsg");
-        const child = document.createElement("div");
-        child.className = "sendMsg";
-       child.textContent=`${obj.msg}`;
-       parent.appendChild(child);   
+
     }
-    
-    
+    function getMsgFromLocalStorage() {
+        //get msgs from local storage
+        const getFromLocalStorage = localStorage.getItem("msgs");
+        //parse string from local storage to get again array
+        const parsedMsgs = JSON.parse(getFromLocalStorage);
+        console.log("parsed array from localstorage", parsedMsgs);
+        displaySentMsg(parsedMsgs);
+    }
+
+
+/**
+ * Display the last five chat messages in an HTML container.
+ *
+ * @param {Array} arrMsg - An array of chat message objects to display.
+ * @async
+ */
+    //display sent msg
+    async function displaySentMsg(arrMsg) {
+        document.getElementById("sendChatMsg").innerHTML = "";
+        arrMsg.slice(-5).forEach((obj) => {
+            const parent = document.getElementById("sendChatMsg");
+            const child = document.createElement("div");
+            child.className = "sendMsg";
+            child.textContent = `${obj.msg}`;
+            parent.appendChild(child);
+        })
+    }
+    async function logout(event){
+        event.preventDefault()
+        try{
+          const token=localStorage.getItem("token");
+          const decodeToken=parseJwt(token)
+          const userId=decodeToken.userId
+        const response=await axios.put(`http://localhost:2000/updateStatus/${userId}`)
+        if(response.status===200){
+                    window.location.href='/index.html'
+                }
+                else{
+                    console.log('getting error')
+                }
+        }
+        catch(err){
+          console.log(err)
+        }
+      }
+
+      logout()
+
+
+
+
+
+
+
+
+
+
+
 
 </script>
 

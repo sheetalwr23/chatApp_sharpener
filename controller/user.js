@@ -71,7 +71,11 @@ const createloginController = async (req, res) => {
           console.error("bcrypt error");
           return res.status(500).json({ message: "Internal server error" });
         }
-        if (result) {
+        const loginId = User[0].id;
+        console.log(loginId);
+        if (result == true) {
+          user.update({ status: "online" }, { where: { id: loginId } });
+
           return res.status(200).json({
             message: "User logged in successfully",
             token: generateAccessToken(User[0].id, User[0].name),
@@ -100,9 +104,30 @@ const getLoginUsers = async (req, res) => {
     return res.status(400).json({ message: "unable to get all users" });
   }
 };
+const updateStatus = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log("userid>>>>", userId);
+    const updateUser = await user.update(
+      { status: "offline" },
+      { where: { id: userId } }
+    );
+    console.log("updateUser>>>>", updateUser);
+
+    // const User=await user.findAll()
+    if (updateUser[0] === 0) {
+      return res.status(400).json({ message: "unable to update users" });
+    }
+    return res.status(200).json({ message: "user updated successfully" });
+  } catch (err) {
+    console.log("err", err);
+    return res.status(400).json({ message: "unable to get all users" });
+  }
+};
 module.exports = {
   createSignupController,
   createloginController,
   generateAccessToken,
   getLoginUsers,
+  updateStatus,
 };

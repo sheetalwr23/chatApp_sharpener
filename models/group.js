@@ -1,6 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize_db = require("../util/chatapp");
-const user = sequelize_db.define("user", {
+
+const ChatMsg = sequelize_db.define("chatapp", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -8,27 +9,13 @@ const user = sequelize_db.define("user", {
     primaryKey: true,
     unique: true,
   },
-  name: {
+  group_name: {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  phone: {
+  members: {
     type: Sequelize.STRING,
     allowNull: false,
-  },
-  email: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  status: {
-    type: Sequelize.STRING,
-    defaultValue: "offline",
   },
 });
-
-module.exports = user;
+module.exports = ChatMsg;
