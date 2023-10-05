@@ -1,6 +1,5 @@
 const Sequelize = require("sequelize");
 const sequelize_db = require("../util/chatapp");
-
 const user = sequelize_db.define("user", {
   id: {
     type: Sequelize.INTEGER,
@@ -24,6 +23,12 @@ const user = sequelize_db.define("user", {
   },
   password: {
     type: Sequelize.STRING,
+    allowNull: false,
+  },
+  status: {
+    type: Sequelize.STRING,
+    defaultValue: "offline",
   },
 });
+
 module.exports = user;

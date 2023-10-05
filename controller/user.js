@@ -1,63 +1,133 @@
-const sequelize = require("sequelize");
-const User = require("../model/user");
+const express = require("express");
+const user = require("../models/user");
+const db = require("../util/chatapp");
 const bcrypt = require("bcrypt");
-
-const createUser = async (req, res) => {
+const chatapp = require("../models/chatapp");
+const jwt = require("jsonwebtoken");
+//signup
+const createSignupController = async (req, res) => {
   try {
     const { name, phone, email, password } = req.body;
-    console.log("user details", name, phone, email, password);
+    console.log(
+      "this is req data>>>>>>>>>>>>>>>>>>>>",
+      name,
+      phone,
+      email,
+      password
+    );
+    if (
+      name === undefined ||
+      name.length === 0 ||
+      phone === undefined ||
+      phone.length === 0 ||
+      email === undefined ||
+      email.length === 0 ||
+      password === undefined ||
+      password.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({ err: "bad parameters something is missing" });
+    }
+    //pwd encryption
     let saltround = 10;
     bcrypt.hash(password, saltround, async (err, hash) => {
-      const newUser = await User.create({
+      const data = await user.create({
         name: name,
         phone: phone,
         email: email,
         password: hash,
       });
-      console.log("these are user details", newUser);
-      return res.status(200).json({ sign_up: newUser, message: "posted data" });
+      console.log("this is created data", data);
+      return res.status(200).json({ sign_up: data, message: "posted data" });
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Failed to create user." });
   }
 };
-//jwt authorization
-// const generateToken = (User) => {
-//   const token = jwt.sign({ userId: User.id }, "your-secret-key");
-//   return token;
-// };
-const getLoginUser = async (req, res) => {
+
+function generateAccessToken(id, name) {
+  return jwt.sign({ userId: id, name: name }, "sheetalkey");
+}
+// Login Controller
+const createloginController = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("email>>>>>>>>", email, password);
 
-    const getUsers = await User.findAll({ where: { email: email } });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email or password is missing" });
+    }
 
-    if (getUsers.length > 0) {
-      const user = getUsers[0]; // Assuming you only want to check the first user if multiple are found
+    // Get user data
+    const User = await user.findAll({ where: { email: email } });
+    console.log("user>>>>>>>>>>>>>>>>>>>>>>>>", User);
 
-      // Compare the provided password with the hashed password in the database
-      bcrypt.compare(password, user.password, (err, result) => {
+    if (User.length > 0) {
+      // Compare hashed password with provided password
+      bcrypt.compare(password, User[0].password, (err, result) => {
         if (err) {
-          console.error("Error comparing passwords:", err);
-          return res.status(500).json({ error: "Failed to login user" });
+          console.error("bcrypt error");
+          return res.status(500).json({ message: "Internal server error" });
         }
-        if (result) {
-          // const token = generateToken(User[0].id);
-          // return res.status(200).json({ token: token, message: "Valid login user" });
-          return res.status(200).json({ message: "Valid login user" });
+        const loginId = User[0].id;
+        console.log("loginid>>>>>", loginId);
+        console.log("user[0],,,,,,", user);
+        if (result == true) {
+          user.update({ status: "online" }, { where: { id: loginId } });
+          return res.status(200).json({
+            message: "User logged in successfully",
+            token: generateAccessToken(User[0].id, User[0].name),
+          });
         } else {
-          return res.status(401).json({ error: "Invalid login user" });
+          return res.status(400).json({ message: "Password is not correct" });
         }
       });
     } else {
-      // No user found with the provided email
-      return res.status(401).json({ error: "Invalid login user" });
+      return res.status(400).json({ message: "User does not exist" });
     }
-  } catch (err) {
-    console.error("Error while logging in:", err);
-    return res.status(500).json({ error: "Failed to login user" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = { createUser, getLoginUser };
+const getLoginUsers = async (req, res) => {
+  try {
+    const allUsers = await user.findAll();
+    return res
+      .status(200)
+      .json({ all_users: allUsers, message: "here are all users" });
+  } catch (error) {
+    console.log("cant get all users");
+    return res.status(400).json({ message: "unable to get all users" });
+  }
+};
+const updateStatus = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log("userid>>>>", userId);
+    const updateUser = await user.update(
+      { status: "offline" },
+      { where: { id: userId } }
+    );
+    console.log("updateUser>>>>", updateUser);
+
+    // const User=await user.findAll()
+    if (updateUser[0] === 0) {
+      return res.status(400).json({ message: "unable to update users" });
+    }
+    return res.status(200).json({ message: "user updated successfully" });
+  } catch (err) {
+    console.log("err", err);
+    return res.status(400).json({ message: "unable to get all users" });
+  }
+};
+module.exports = {
+  createSignupController,
+  createloginController,
+  generateAccessToken,
+  getLoginUsers,
+  updateStatus,
+};

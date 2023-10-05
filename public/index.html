@@ -12,41 +12,53 @@
     />
   </head>
   <style>
+    .container {
+      /* background-repeat: no-repeat; */
+      display: block;
+      /* border: 2px solid red; */
+      color: seagreen;
+      font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: bolder;
+      text-align: center;
+      padding: 100px;
+      margin-top: 5%;
+      font: bold;
+      width: 90%;
+      position: relative;
+      overflow: hidden;
+      height: 50%;
+    }
+
     .navbar {
       height: 100px;
       border: 2px solid black;
-      background-color:rgb(157, 226, 223);
-      box-shadow: 3px 3px 3px 3px rgb(125, 169, 144);
-      color: seagreen;
+      background-color: rgb(148, 218, 178);
+      box-shadow: 3px 3px 3px 3px green;
     }
- .logo{
-        margin: 8px;
-        padding: 10px;
-       
-    }
-
     button {
       color: black;
-      background-color:rgb(157, 226, 223);
+      background-color: seagreen;
       border-radius: 4px;
       padding: 8px;
       margin: 4px;
       font-weight: bold;
     }
     button:hover {
-        background-color:rgb(157, 226, 223);
+      background-color: green;
+    }
+    h1 {
+      color: seagreen;
     }
   </style>
   <body>
     <div>
       <ul class="nav navbar">
         <li class="nav-item">
-            <div class="logo">
-                <h1>Chat App</h1>
-            </div>
+          <a class="nav-link active" href="./index.html"><h1>Chat app</h1></a>
         </li>
         <li class="nav-item justify-content-end d-flex ms-auto">
-          <a class="nav-link" href="./signUp.html">
+          <a class="nav-link" href="./signup.html">
             <button class="btn btn-lg btn-success">Signup</button></a
           >
         </li>
@@ -56,6 +68,6 @@
           >
         </li>
       </ul>
-  
+    </div>
   </body>
 </html>

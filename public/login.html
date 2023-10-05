@@ -11,12 +11,17 @@
   </head>
   <style>
     .card {
-      background-color: rgb(157, 226, 223);
+      background-color: rgb(148, 218, 178);
       box-shadow: 20px 20px 50px 15px rgb(177, 196, 206);
     }
     h3 {
       color: seagreen;
       text-align: center;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
     }
   </style>
   <body>
@@ -47,14 +52,12 @@
                     placeholder="Password"
                   />
                 </div>
-                <button class="btn btn-success">Login</button>
+                <button type="submit" class="btn btn-success">Login</button>
               </form>
               <p class="tytext">
                 Dont have an account? <a href="./signup.html">SignUP Here!</a>
               </p>
-              <p>
-                <a href="./resetpwd.html">Forgot password?</a>
-              </p>
+              <!-- <p class="tytext"><a href="./login.html">Forget password?</a></p> -->
             </div>
           </div>
         </div>
@@ -74,11 +77,11 @@
         console.log(obj);
         try {
           const res = await axios.post("http://localhost:2000/login", obj);
-          //   localStorage.setItem("token", res.data.token);
+          localStorage.setItem("token", res.data.token);
           console.log("login data posted", res.data);
           if (res.status === 200) {
             window.alert("You are successfully logged in");
-            window.location.href = "expense.html";
+            window.location.href = "chatapp.html";
           }
         } catch (err) {
           console.log(err);

@@ -17,7 +17,7 @@
         z-index: 0.5;
     }
     .card {
-      background-color:rgb(157, 226, 223);
+      background-color:rgb(148, 218, 178);
       box-shadow: 20px 20px 50px 15px rgb(150, 153, 161);
     }
     .tytext
@@ -31,7 +31,7 @@
 h1
     {
         text-align: center;
-        color:seagreen;
+        color: seagreen;
     }
   </style>
   <body>
@@ -108,7 +108,7 @@ let obj={
 console.log(obj);
 try{
 const res=await axios.post("http://localhost:2000/signup",obj);
-// console.log(res.data);
+console.log(res.data);
 if(res.status==200)
 {
   window.alert("your account has been created");
