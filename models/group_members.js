@@ -12,6 +12,9 @@ const group_members = sequelize.define("groupMembers", {
   userId: {
     type: Sequelize.INTEGER,
   },
+  groupId: {
+    type: Sequelize.INTEGER,
+  },
 });
 
 module.exports = group_members;

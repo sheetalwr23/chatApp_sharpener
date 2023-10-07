@@ -7,6 +7,11 @@
     <title>Chat Application</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+        integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
 </head>
 <style>
     .user-name {
@@ -54,7 +59,7 @@
     .chat-area {
         border: solid 1px #ccc;
         border-radius: 5px;
-        height: 700px;
+        height: 600px;
         position: relative;
         width: 700px;
         /* box-shadow: 4px 4px 4px 4px rgb(207, 246, 224); */
@@ -81,33 +86,35 @@
 
     header {
         background-color: seagreen;
-        padding: 8px;
         width: 100%;
+        padding: 8px;
         margin: auto;
         color: white;
-        text-align: center;
+        /* text-align: center; */
         font-size: 20px;
         font-weight: 800;
     }
 
     .list-group {
         margin: 4px;
+
     }
 
     .sendMsg {
         float: right;
         margin: 4px;
         padding: 4px;
-        background-color: pink;
+        background-color: rgb(215, 207, 207);
         border-radius: 8px;
         width: 60%;
 
     }
 
     #contact-list {
-        border: 2px solid grey;
+        /* border: 2px solid grey; */
+        width: 100%;
         height: 200px;
-        margin: 4px;
+        /* margin: 4px;  */
     }
 
     ul {
@@ -118,8 +125,15 @@
     }
 
     #logOut {
-        float: left;
-        margin-top: 4px;
+        float: right;
+        /* margin-top: 8px; */
+       
+    
+    font-weight: bold; /* Make text bold */
+    border: none; /* Remove button border */
+    border-radius: 5px; /* Add button border radius */
+    padding: 5px 10px;
+
     }
 
     .btn_create_group {
@@ -127,11 +141,15 @@
         padding: 4px;
     }
 
-    .navbar {
+    .bgcolor {
+        position: relative;
         height: 70px;
+
         /* border: 2px solid black; */
         background-color: rgb(148, 218, 178);
-        box-shadow: 3px 3px 3px 3px green;
+        
+      
+        box-shadow: 3px 3px 3px 3px rgb(179, 228, 179);
     }
 
     #nav-heading {
@@ -147,48 +165,63 @@
         font-style: italic;
         list-style: disc;
     }
+
+    .row-bg {
+        background-color: whitesmoke;
+        height: 40px;
+        padding: 4px;
+
+    }
+
+    h5 {
+        text-align: center;
+        color: seagreen;
+    }
+    .logo-text
+    {
+        font-family: 'Your Chosen Font', sans-serif; /* Replace with the desired font family */
+    font-size: 24px; /* Adjust the font size as needed */
+    color:green; /* Change the color to your preference */
+    
+    letter-spacing: 4px; /* Adjust letter spacing for style */
+    font-weight: bold; /* Make it bold */
+    text-decoration: none;
+    }
 </style>
 
 <body>
-    <div class="nav navbar">
-        <ul id="nav-heading">
-            <li>
-                <h3>ChatApp</h3>
-            </li>
-        </ul>
+    <div class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid bgcolor">
+            <div class="row w-100">
+                <div class="col-6">
+                    <a class="navbar-brand" href="./index.html">
+                        <span class="logo-text">ChatApp</span>
+                    </a>
+                </div>
+                <div class="col-6 text-right">
+                    <a href="./index.html"><button class="btn btn-success" id="logOut" onclick="logout(event)">LogOut</button></a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="container">
-        <div class="row">
+    
+
+
+
+    <div class="container-fluid">
+        <div class="row w-100 row-bg">
+
             <div class="col-md-3">
+                <h5>Contact list</h5>
                 <div id="contact-list">
-                    <header>Contact list</header>
                     <ul class="list-group" id="contact">
                     </ul>
                 </div>
-                <div class="container mt-5">
-                    <h5>Create a New Group</h5>
-                    <form id="createGroupForm">
-                        <div class="form-group">
-                            <label for="groupName">Group Name:</label>
-                            <input type="text" class="form-control" id="groupName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Select Members:</label>
-                            <div class="user-list" id="userList">
-                                <!-- User checkboxes will be added here dynamically -->
-                                <!-- <label class="member_label"></label> -->
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary" onclick="createGroup(event)">Create
-                            Group</button>
-                    </form>
-                </div>
-                <div id="display_group">
-                    <ul id="group">Your Groups:</ul>
-                </div>
+
+
             </div>
             <div class="col-md-6 chat-area">
-                <header>Chat App</header>
+                <h5 id="chatWith"></h5>
                 <div class="main-chat-area" id="main-chat-area">
                     <div id="sendChatMsg">
 
@@ -205,9 +238,62 @@
                 </div>
             </div>
 
-            <div class="col-md-2">
-                <a href="./index.html"><button class="btn btn-success" id="logOut"
-                        onclick="logout(event)">LogOut</button></a>
+            <div class="col-md-3">
+                <h5>Your Groups</h5>
+                <div id="display_group">
+                    <div class="row">
+
+                        <div class="col-md-6 justify-content-lg-start">
+                            <button type="button" class="btn btn-success" onclick="removeSelectedMembers();"
+                                data-bs-toggle="modal" data-bs-target="#createGroup">
+                                + Add New
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Button trigger modal -->
+
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="createGroup" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create Your Group</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container mt-5">
+                                        <!-- <h5>Create a New Group</h5> -->
+                                        <form id="createGroupForm">
+                                            <div class="form-group">
+                                                <label for="groupName">Group Name:</label>
+                                                <input type="text" class="form-control" id="groupName" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Select Members:</label>
+                                                <div class="user-list" id="userList">
+                                                    <!-- User checkboxes will be added here dynamically -->
+                                                    <!-- <label class="member_label"></label> -->
+                                                </div>
+                                            </div>
+                                            <!-- <button type="submit" class="btn btn-primary">Create
+        Group</button> -->
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" onclick="createGroup(event)">Save
+                                        </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul id="group" class="list-group"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -216,6 +302,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="text/javascript">
+    let groupEditData = {};
 
     async function sendMsg(event) {
         event.preventDefault();
@@ -258,11 +345,16 @@
                 if (decodedToken.name != element.name) {
                     const child = document.createElement("li");
                     child.textContent = element.name;
+                    child.className="list-group-item";
                     parent.appendChild(child);
-
+                    child. onclick=() => {
+                        console.log("You clicked on: ", element.name);
+                        document.getElementById("chatWith").innerHTML=element.name;
+                       
+                        // Add your custom code here for handling the click event
+                    }
                 }
-            });
-
+            })
         }
         catch (error) {
             console.log("can not get all uasers", error)
@@ -281,7 +373,7 @@
         //get groups 
         getGroupDetails()
 
-
+        getGroupMembers();
     })
 
     //set msg to local storage
@@ -305,19 +397,14 @@
     function getMsgFromLocalStorage() {
         //get msgs from local storage
         const getFromLocalStorage = localStorage.getItem("msgs");
-        //parse string from local storage to get again array
+        
         const parsedMsgs = JSON.parse(getFromLocalStorage);
         console.log("parsed array from localstorage", parsedMsgs);
         displaySentMsg(parsedMsgs);
     }
 
 
-    /**
-     * Display the last five chat messages in an HTML container.
-     *
-     * @param {Array} arrMsg - An array of chat message objects to display.
-     * @async
-     */
+   
     //display sent msg
     async function displaySentMsg(arrMsg) {
         document.getElementById("sendChatMsg").innerHTML = "";
@@ -330,33 +417,55 @@
         })
     }
 
-
+    function removeSelectedMembers() {
+        groupEditData = { members: [] };
+        getGroupMembers();
+    }
 
     async function getGroupMembers() {
         try {
             const getData = await axios.get("http://localhost:2000/user");
-            console.log("all users", getData.data.all_users);
             const array = getData.data.all_users;
-            console.log("array of object of users", array);
 
+            const token = localStorage.getItem('token');
+            const decodename = parseJwt(token);
+            // console.log('decodename',decodename);
             const userListDiv = document.getElementById("userList");
+            userListDiv.innerHTML = '';
+
+            const { members, groupname } = groupEditData;
+            console.log('groupMembers', groupEditData);
+            // document.getElementById('groupName').value = groupname ? groupname : '';
+            if (groupname) {
+                document.getElementById('groupName').value = groupname;
+            }
+            else {
+                document.getElementById('groupName').value = '';
+            }
+
+
             array.forEach((ele, index) => {
                 // Create a checkbox input element
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
                 checkbox.value = ele.id; // Assign the user's name as the value
+                if (decodename.userId == ele.id) {
+                    checkbox.checked = true;
+                    checkbox.disabled = true;
+                }
+                if (members.find(memb => memb.userId == ele.id)) {
+                    checkbox.checked = true;
+                }
                 checkbox.className = "array-checkbox";
 
                 // Create a label element for the checkbox
                 const label = document.createElement("label");
-                label.appendChild(checkbox); // Add the checkbox to the label
+                label.appendChild(checkbox); 
                 label.appendChild(document.createTextNode(ele.name)); // Add user name text
 
-                // Append the label (with the checkbox) to the userListDiv
+               
                 userListDiv.appendChild(label);
-                userListDiv.appendChild(document.createElement("br")); // Add a line break
-
-
+                userListDiv.appendChild(document.createElement("br")); 
             });
 
         } catch (err) {
@@ -364,9 +473,10 @@
         }
     }
 
-    getGroupMembers();
+
     function selectMembers() {
         const selectedUsers = [];
+        const selectedUsersid = [];
         // getGroupMembers();
         const checkboxes = document.getElementsByClassName("array-checkbox");
 
@@ -374,8 +484,10 @@
         checkboxesArray.forEach((checkbox) => {
             if (checkbox.checked) {
                 selectedUsers.push(checkbox.value);
+
             }
         });
+        // console.log("selectedUsersid",selectedUsersid)
         return selectedUsers;
     }
 
@@ -396,15 +508,24 @@
 
         console.log("Group Data:", groupData);
         const token = localStorage.getItem('token');
-
         try {
-            const postGroup = await axios.post("http://localhost:2000/createGroup", groupData, {
-                headers: { "Authorization": token }
-            });
-            console.log("Data posted: postGroup", postGroup);
+            if (groupEditData.members.length <= 0) {
+                const postGroup = await axios.post("http://localhost:2000/createGroup", groupData, {
+                    headers: { "Authorization": token }
+                });
+            }
+            else {
+                const postGroup = await axios.put("http://localhost:2000/updateGroup/" + groupEditData.id, groupData, {
+                    headers: { "Authorization": token }
+                });
+            }
+            removeSelectedMembers();
 
             // Clear selectedUsers after successful post if needed
             selectMembers().length = 0;
+            getGroupDetails();
+
+            $('#createGroup').modal('hide');
         } catch (error) {
             console.error("Error posting data:", error);
         }
@@ -414,25 +535,54 @@
     async function getGroupDetails() {
         try {
             const token = localStorage.getItem('token');
+            const decodename = parseJwt(token);
+            console.log("decodedtokenname", decodename.userId);
+            const admin = decodename.userId;
             const getGroupDetails = await axios.get("http://localhost:2000/getGroup", { headers: { "Authorization": token } });
-            console.log("groupDetails are", getGroupDetails.data.allGroupData);
-            const array = getGroupDetails.data.allGroupData;
-            displayGroup(array);
+
+            const array = getGroupDetails.data.finalGroupMemMapping;
+            displayGroup(array, admin);
+            console.log("array", array)
         }
         catch (error) {
             console.log("can not get group details", error);
         }
     }
-    function displayGroup(arrayOfObj) {
+    function displayGroup(array, admin) {
+        // const {allGroupData,groupmembers} = array; // getting both model data here
+
         const parent = document.getElementById("group");
-        arrayOfObj.forEach((obj) => {
+        parent.innerHTML = '';
+        array.forEach((obj) => {
             console.log("obj", obj.groupname);
             const child = document.createElement("li");
-            child.textContent = `groupName:${obj.groupname},Admin:${obj.createdBy}`;
-            child.className = "groupName";
+            child.textContent = `${obj.groupname}`;
+            child.className = "list-group-item";
             parent.appendChild(child);
+            //edit group
+            if (admin == `${obj.createdBy}`) {
+                const edit = document.createElement("button");
+                edit.innerHTML = "Edit";
+                edit.className = "btn"
+                child.appendChild(edit);
+
+                edit.onclick = () => {
+                    // console.log('calling');
+                    document.getElementById("group").value = obj.groupname;
+                    groupEditData = obj;
+                   
+                    $('#createGroup').modal('show');
+
+                    getGroupMembers();
+
+                    // console.log("Hello Check it here : -", groupEditData);
+                };
+            }
+
 
         })
+
+
     }
 
     async function logout(event) {
@@ -453,7 +603,6 @@
             console.log(err)
         }
     }
-
 
 
 

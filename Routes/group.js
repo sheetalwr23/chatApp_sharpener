@@ -20,4 +20,9 @@ router.get(
   controller.getGroupDetails
 );
 
+router.put(
+  "/updateGroup/:id",
+  userAuthentication.authenticate,
+  controller.updateGroup
+);
 module.exports = router;
