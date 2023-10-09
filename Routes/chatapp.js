@@ -10,5 +10,6 @@ router.get("/", (req, res) => {
 
 router.post("/chat", userAuthentication.authenticate, controller.createMsg);
 router.get("/chat", userAuthentication.authenticate, controller.getMsg);
+router.get("/chat-msg/:from/:to", controller.getMyMessages);
 
 module.exports = router;

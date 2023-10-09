@@ -1,3 +1,4 @@
+const ChatMsg = require("../models/chatapp");
 const Chatapp = require("../models/chatapp");
 const sequelize = require("sequelize");
 const createMsg = async (req, res) => {
@@ -23,4 +24,17 @@ const getMsg = async (req, res) => {
     console.log("something went wrong", err);
   }
 };
-module.exports = { createMsg, getMsg };
+
+const getMyMessages = async (req, res) => {
+  const { to, from } = req.params;
+  data = await ChatMsg.findAll({
+    where: {
+      to: [to, from],
+      from: [to, from],
+    },
+  });
+  return res
+    .status(200)
+    .json({ chatMsg: data, message: " data fetched successfully" });
+};
+module.exports = { createMsg, getMsg, getMyMessages };

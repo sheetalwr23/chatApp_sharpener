@@ -100,14 +100,23 @@
 
     }
 
-    .sendMsg {
-        float: right;
+    .msg-text {
         margin: 4px;
         padding: 4px;
-        background-color: rgb(215, 207, 207);
-        border-radius: 8px;
+        padding-left: 8px;
+        border-radius: 4px;
         width: 60%;
-
+        
+    }
+    .sending-msg{
+        float: right;
+        background-color: rgb(243, 243, 250);
+        border:1px solid lightblue;
+    }
+    .receiving-msg{
+        float:left;
+        background-color:rgb(235, 246, 235);
+        border:1px solid lightgreen;
     }
 
     #contact-list {
@@ -301,23 +310,70 @@
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script type="text/javascript">
-    let groupEditData = {};
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script> -->
+<script src="http://localhost:2000/socket.io/socket.io.js"></script>
 
+
+<script type="text/javascript">
+//  const socket = io.connect('http://localhost:2000');
+const socket = io();
+ socket.on('receive-message', (messageData) => {
+    // It will update the chat UI when a new message is received
+    updateChatUIWithNewMessage(messageData);
+});
+
+function sendMessage(messageData) {
+    // socket.emit('new-message', messageData);
+}
+
+socket.on('connection', (socket_id) => {
+    // console.log(parseJwt(localStorage.getItem('token')));
+    // console.log("hello there can you see this mesg");
+    const {userId} = parseJwt(localStorage.getItem('token'));
+    console.log('userId :- ',socket_id);
+    socket.emit('save-customer-details',{userId,socket_id});
+//  socket.emit('chat message','connected message from frontend');
+});
+socket.on('connection-done',(data)=>{
+    // console.log(localStorage.get('token'))
+    // socket.emit('save-customer-details',)
+});
+
+socket.on('received_msg',(data)=>{
+    const {msg, to} = data;
+    console.log('message received here :- ', data );
+    const {id:toUser} = JSON.parse(localStorage.getItem('activeMessageUser'));
+    // if(to===toUser){
+        messages.push({ msg: msg, type:'receiving' });
+        displaySentMsg(messages);
+    // }
+})
+
+    let groupEditData = {};
+    let messages = [];
     async function sendMsg(event) {
         event.preventDefault();
 
         const msg = document.getElementById("message-txt").value;
-        const obj = { msg: msg };
-        try {
-            const token = localStorage.getItem('token');
-            const postMsg = await axios.post("http://localhost:2000/chat", obj, { headers: { "Authorization": token } });
-            console.log("posted msg", postMsg.data.chatMsg);
-            fetchMsgFromGetAPi();
-        }
-        catch (err) {
-            console.log("cant post", err)
-        }
+        const {userId} = parseJwt(localStorage.getItem('token'));
+        const {id:toUser} = JSON.parse(localStorage.getItem('activeMessageUser'));
+        // const obj = { msg: msg };
+        socket.emit('sendMessage',{from : userId, to:toUser,msg:msg});
+        messages.push({ msg: msg, type:'sending' })
+        displaySentMsg(messages);
+        document.getElementById("message-txt").value = '';
+        // try {
+        //     const token = localStorage.getItem('token');
+        //     const postMsg = await axios.post("http://localhost:2000/chat", obj, { headers: { "Authorization": token } });
+        //     console.log("posted msg", postMsg.data.chatMsg);
+        //     sendMessage(obj)
+        //     fetchMsgFromGetAPi();
+            
+        // }
+        // catch (err) {
+        //     console.log("cant post", err)
+        // }
     }
 
 
@@ -328,33 +384,57 @@
         const payload = JSON.parse(atob(base64)); // Decode and parse the payload
         return payload;
     }
-
-    async function getUserFromApi() {
-        //get contacts other than logged in user
-        try {
-            const getData = await axios.get("http://localhost:2000/user");
-            console.log("all users", getData.data.all_users);
-            const array = getData.data.all_users;
+const iterateUserList = getData =>{
+    const array = getData.data.all_users;
+    document.getElementById("contact").innerHTML = '';
             const parent = document.getElementById("contact");
             const localTokenget = localStorage.getItem("token", getData.data.token);
-            console.log("localTokenget", localTokenget);
             const decodedToken = parseJwt(localTokenget)
-            console.log("decoded token", decodedToken);
 
             array.forEach(element => {
                 if (decodedToken.name != element.name) {
                     const child = document.createElement("li");
                     child.textContent = element.name;
-                    child.className="list-group-item";
+                    const activeUser = JSON.parse(localStorage.getItem('activeMessageUser'));
+                    child.className=activeUser?.id==element?.id?"active list-group-item":"list-group-item";
+                    
                     parent.appendChild(child);
-                    child. onclick=() => {
-                        console.log("You clicked on: ", element.name);
-                        document.getElementById("chatWith").innerHTML=element.name;
-                       
-                        // Add your custom code here for handling the click event
+                    child.onclick=()=>{
+                        localStorage.setItem('activeMessageUser',JSON.stringify(element));
+                        showActiveUserDetails();
+                        iterateUserList(getData);
+                        fetchChatMessagesForOneUser(element);
                     }
+
                 }
-            })
+            });
+}
+
+// function pushUserMessageInLocalStorage(user,message){
+//     localStorage.set8Item('activeMessageUser',JSON.stringify(element));
+// }
+async function fetchChatMessagesForOneUser({id}){
+    const {userId} = parseJwt(localStorage.getItem('token'));
+const data = await axios.get(`http://localhost:2000/chat-msg/${userId}/${id}`);
+const msgs = data.data.chatMsg.map(dt=>{
+    if(dt.from==userId){  dt.type='sending'; }
+    else{ dt.type='receiving'}
+    return dt;
+});
+console.log('here are fetched messages',msgs);
+messages = msgs;
+displaySentMsg(messages);
+}
+
+
+
+    async function getUserFromApi() {
+        //get contacts other than logged in user
+        try {
+            const getData = await axios.get("http://localhost:2000/user");
+            
+          iterateUserList(getData)
+
         }
         catch (error) {
             console.log("can not get all uasers", error)
@@ -375,7 +455,10 @@
 
         getGroupMembers();
     })
-
+const showActiveUserDetails = () =>{
+    const element = JSON.parse(localStorage.getItem('activeMessageUser'));
+    document.getElementById("chatWith").innerHTML=element.name;
+}
     //set msg to local storage
     async function fetchMsgFromGetAPi() {
         try {
@@ -411,7 +494,7 @@
         arrMsg.slice(-5).forEach((obj) => {
             const parent = document.getElementById("sendChatMsg");
             const child = document.createElement("div");
-            child.className = "sendMsg";
+            child.className = obj.type==='receiving'?'msg-text receiving-msg': "msg-text sending-msg";
             child.textContent = `${obj.msg}`;
             parent.appendChild(child);
         })
@@ -562,6 +645,7 @@
             //edit group
             if (admin == `${obj.createdBy}`) {
                 const edit = document.createElement("button");
+                // edit.type="text"
                 edit.innerHTML = "Edit";
                 edit.className = "btn"
                 child.appendChild(edit);
@@ -586,6 +670,7 @@
     }
 
     async function logout(event) {
+        socket.disconnect();
         event.preventDefault()
         try {
             const token = localStorage.getItem("token");

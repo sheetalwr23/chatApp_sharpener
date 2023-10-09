@@ -74,8 +74,7 @@ const getGroupDetails = async (req, res) => {
     // console.log("Group mem:>>>>>>>>>>>>>>>>>>>", GroupMem);
 
     const finalGroupMemMapping = [];
-    // [{groupId:1,userId:2},
-    // {groupId:1,userId:3}]
+
     GroupMem.forEach(async (element, index) => {
       const groups = await Group.findOne({
         where: { id: element.groupId },

@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize_db = require("../util/chatapp");
 
-const ChatMsg = sequelize_db.define("chatapp", {
+const SocketUser = sequelize_db.define("socket_user", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -9,15 +9,11 @@ const ChatMsg = sequelize_db.define("chatapp", {
     primaryKey: true,
     unique: true,
   },
-  msg: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  from: {
+  socket_id: {
     type: Sequelize.STRING,
   },
-  to: {
+  userId: {
     type: Sequelize.STRING,
   },
 });
-module.exports = ChatMsg;
+module.exports = SocketUser;
