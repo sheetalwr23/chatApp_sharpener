@@ -8,18 +8,15 @@ const saveSocketId = async ({ userId, socket_id }) => {
   });
 };
 
-const socketDisconnect = (socketId) => {
-  console.log("user disconnected", socketId);
-};
-
 const sendMessage = async (messageData, io) => {
   const { to } = messageData;
   console.log("check sending message : - ", messageData);
   const sendingSocketDetails = await SocketUser.findOne({
     where: { userId: to },
+
     order: [["id", "desc"]],
   });
   io.to(sendingSocketDetails?.socket_id).emit("received_msg", messageData);
   await ChatMsg.create(messageData);
 };
-module.exports = { saveSocketId, socketDisconnect, sendMessage };
+module.exports = { saveSocketId, sendMessage };

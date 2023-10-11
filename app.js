@@ -18,41 +18,23 @@ const cors = require("cors");
 const { emit, disconnect } = require("process");
 app.use(cors());
 
-const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true,
-  optionSuccessStatus: 200,
-};
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   credentials: true,
+//   optionSuccessStatus: 200,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
+
 app.use("/", router);
 app.use("/", chatRoute);
 app.use("/", groupRoute);
 
-// io.on("connection", (socket) => {
-//   console.log("a user connected", socket);
-
-//   // socket.on('join-group', (groupId) => {
-//   //     socket.join(groupId);
-//   // });
-
-//   socket.on("new-message", (messageData) => {
-//     io.to(messageData.groupId).emit("receive-message", messageData); //broadcast the message to all users in the group
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log("user disconnected");
-//   });
-// });
-
-// server.listen(3000, () => {
-//   console.log("listening on *:3000");
-// });
-//one to many relation
+//many to many relation
 user.hasMany(chat);
 chat.belongsTo(user);
 
@@ -79,14 +61,9 @@ const server = app.listen(2000, () => {
 });
 
 const { Server } = require("socket.io");
-const {
-  saveSocketId,
-  socketDisconnect,
-  sendMessage,
-} = require("./controller/socket");
+const { saveSocketId, sendMessage } = require("./controller/socket");
 const SocketUser = require("./models/socket_user");
 const io = new Server(server);
-// var io = require("socket.io").listen(server);
 
 io.on("connection", (socket) => {
   const socket_id = socket.id;
@@ -97,7 +74,7 @@ io.on("connection", (socket) => {
   socket.on("save-customer-details", saveSocketId);
 
   socket.on("disconnect", async (socketId) => {
-    await SocketUser.destroy({ where: { socket_id } });
+    await SocketUser.destroy({ where: { socket_id: socketId } });
   });
 
   socket.on("sendMessage", (messageData) => {

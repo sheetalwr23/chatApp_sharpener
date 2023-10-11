@@ -250,9 +250,8 @@
                         <button class="btn btn-success" onclick="sendMsg(event)">Send</button>
                     </div>
                     <div class="col-md-1">
-                        <!-- <img src="../images/1151991.png" alt="" srcset=""> -->
                         <img
-                        src="../images/1151991.png"
+                        src="./images/attach.png"
                         alt="attachfile"
                         srcset=""
                         class="attach_img"
@@ -374,33 +373,29 @@ function sendMessage(messageData) {
 }
 
 socket.on('connection', (socket_id) => {
-    // console.log(parseJwt(localStorage.getItem('token')));
-    // console.log("hello there can you see this mesg");
+  
     const {userId} = parseJwt(localStorage.getItem('token'));
     console.log('userId :- ',socket_id);
     socket.emit('save-customer-details',{userId,socket_id});
-//  socket.emit('chat message','connected message from frontend');
 });
 socket.on('connection-done',(data)=>{
-    // console.log(localStorage.get('token'))
-    // socket.emit('save-customer-details',)
+
 });
 
 socket.on('received_msg',(data)=>{
     const {msg, to} = data;
     console.log('message received here :- ', data );
     const {id:toUser} = JSON.parse(localStorage.getItem('activeMessageUser'));
-    // if(to===toUser){
+   
         messages.push({ msg: msg, type:'receiving' });
         displaySentMsg(messages);
-    // }
+ 
 })
 
     let groupEditData = {};
     let messages = [];
     async function sendMsg(event) {
         event.preventDefault();
-
         const msg = document.getElementById("message-txt").value;
         const {userId} = parseJwt(localStorage.getItem('token'));
         const {id:toUser} = JSON.parse(localStorage.getItem('activeMessageUser'));
@@ -456,9 +451,7 @@ const iterateUserList = getData =>{
             });
 }
 
-// function pushUserMessageInLocalStorage(user,message){
-//     localStorage.set8Item('activeMessageUser',JSON.stringify(element));
-// }
+
 async function fetchChatMessagesForOneUser({id}){
     const {userId} = parseJwt(localStorage.getItem('token'));
 const data = await axios.get(`http://localhost:2000/chat-msg/${userId}/${id}`);
@@ -498,7 +491,7 @@ displaySentMsg(messages);
 
         //get groups 
         getGroupDetails()
-
+        //get group members
         getGroupMembers();
     })
 const showActiveUserDetails = () =>{
@@ -511,10 +504,8 @@ const showActiveUserDetails = () =>{
             const token = localStorage.getItem('token');
             const getMsg = await axios.get("http://localhost:2000/chat", { headers: { "Authorization": token } });
             console.log("all messages", getMsg.data.chatMsg);
-            //convert arrofobject to string to set into local storage
             const arrOfObj = getMsg.data.chatMsg;
             const string = JSON.stringify(arrOfObj);
-            // console.log("string",string);
             localStorage.setItem("msgs", string);
             getMsgFromLocalStorage();
         }
@@ -564,7 +555,6 @@ const showActiveUserDetails = () =>{
 
             const { members, groupname } = groupEditData;
             console.log('groupMembers', groupEditData);
-            // document.getElementById('groupName').value = groupname ? groupname : '';
             if (groupname) {
                 document.getElementById('groupName').value = groupname;
             }
